@@ -1,43 +1,114 @@
-# Warehouse Evaluation App
+# Warehouse Evaluation System
 
-這是一個用於倉庫評估的 Streamlit 應用程式，使用 IDW（反距離加權法）進行空間插值分析。
+A sophisticated real estate analysis system built with Streamlit, focusing on warehouse property valuation using spatial interpolation techniques and statistical analysis.
 
-## 功能特點
+## 🌟 Features
 
-- 互動式地圖顯示
-- 距離和面積篩選
-- IDW 空間插值計算
-- 詳細的計算過程展示
-- 預測價格與實際價格比較
+### Interactive Mapping
+- Dynamic Folium-based mapping interface with fullscreen capability
+- Color-coded markers for target and comparison properties
+- Detailed property information in popup windows
+- Real-time distance calculations
 
-## 資料格式要求
+### Advanced Filtering
+- Distance-based filtering with adjustable radius (0-50km)
+- Area-based filtering with customizable tolerance ranges
+- Dynamic update of map markers and analysis based on filters
 
-請準備一個 CSV 檔案 (warehouse_data.csv)，其中需要包含以下欄位：
-- Address：地址
-- Latitude：緯度
-- Longitude：經度
-- Total Area (m^2)：總面積
-- Price：價格 (€)
-- Price per m^2：每平方公尺單價 (€)
+### Statistical Analysis
+- Interactive box plot visualization using Plotly
+- Comprehensive statistical summary including:
+  - Mean, median, and standard deviation
+  - Quartile distribution
+  - Min/max values
+  - Sample size metrics
+- Visual comparison with target property values
 
-## 本地運行
+### Spatial Analysis
+- IDW (Inverse Distance Weighting) interpolation
+- Detailed weight calculation process
+- Percentage-based contribution analysis
+- Predicted vs. actual price comparison
 
-1. 安裝相依套件：
+## 📊 Data Requirements
+
+The system requires a CSV file (`warehouse_data.csv`) with the following structure:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| Address | string | Property location address |
+| Latitude | float | Geographic latitude |
+| Longitude | float | Geographic longitude |
+| Total Area (m²) | float | Total property area |
+| Price | float | Property price in EUR (€) |
+| Price per m² | float | Unit price in EUR (€) |
+
+**Note**: The first row in the CSV file is considered as the target property for evaluation.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.7+
+- pip package manager
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd warehouse-evaluation
+```
+
+2. Install required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. 運行應用程式：
+### Running the Application
+
+Launch the application using Streamlit:
 ```bash
 streamlit run app.py
 ```
 
-## 線上使用
+The application will be available at `http://localhost:8501` by default.
 
-訪問：[Streamlit Cloud 連結]
+## 📝 Usage Guidelines
 
-## 注意事項
+1. **Data Preparation**
+   - Ensure your CSV file follows the required format
+   - Place the target property as the first entry
+   - Verify all numerical values are properly formatted
 
-- 第一筆資料將被視為勘估標的
-- 需要至少 3 個有效的比較標的才能進行 IDW 計算
-- 所有金額單位為歐元 (€) 
+2. **Filtering**
+   - Use the sidebar controls to adjust search parameters
+   - Distance filter: 0-50km radius from target property
+   - Area filter: Adjustable tolerance range based on target property size
+
+3. **Analysis**
+   - Minimum 3 comparison properties required for IDW calculation
+   - All monetary values are in EUR (€)
+   - Statistical analysis updates automatically with filter changes
+
+## 🛠 Technical Stack
+
+- **Frontend**: Streamlit
+- **Mapping**: Folium, streamlit-folium
+- **Data Processing**: Pandas
+- **Spatial Calculations**: GeoPy
+- **Visualization**: Plotly
+- **Statistical Analysis**: Native Python
+
+## 📈 Performance Considerations
+
+- Optimized for datasets with up to 1000 properties
+- Caching implemented for data loading operations
+- Efficient spatial calculations using GeoPy
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

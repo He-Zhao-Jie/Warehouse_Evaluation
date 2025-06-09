@@ -5,6 +5,7 @@ from streamlit_folium import folium_static
 from geopy.distance import geodesic
 from folium.plugins import Fullscreen
 from folium.features import IFrame
+import plotly.graph_objects as go
 
 # 設置頁面標題
 st.title('Soria Natural Warehouse Evaluation')
@@ -156,6 +157,83 @@ st.dataframe(comp_df, hide_index=True)
 st.subheader('倉庫位置地圖')
 m = create_map(df, max_distance, min_area, max_area)
 folium_static(m)
+
+# 在IDW計算之前添加箱型圖
+st.subheader('單價分布箱型圖分析')
+
+# 準備箱型圖數據
+filtered_prices = []
+for idx, row in df.iloc[1:].iterrows():
+    if pd.notna(row['Latitude']) and pd.notna(row['Longitude']):
+        distance = geodesic(
+            (df.iloc[0]['Latitude'], df.iloc[0]['Longitude']),
+            (row['Latitude'], row['Longitude'])
+        ).kilometers
+        
+        # 根據篩選條件決定是否納入計算
+        if (distance <= max_distance and 
+            min_area <= row['Total Area (m^2)'] <= max_area):
+            filtered_prices.append(row['Price per m^2'])
+
+if filtered_prices:
+    # 創建箱型圖
+    fig = go.Figure()
+    fig.add_trace(go.Box(
+        y=filtered_prices,
+        name='比較標的',
+        boxpoints='all',  # 顯示所有數據點
+        jitter=0.3,  # 數據點的分散程度
+        pointpos=-1.8,  # 數據點的位置
+        marker_color='blue',
+        marker_size=8,
+        line_color='blue'
+    ))
+
+    # 添加勘估標的的單價作為參考線
+    target_price = df.iloc[0]['Price per m^2']
+    fig.add_hline(
+        y=target_price,
+        line_dash="dash",
+        line_color="red",
+        annotation_text="勘估標的單價",
+        annotation_position="top right"
+    )
+
+    # 更新圖表布局
+    fig.update_layout(
+        title='比較標的單價分布',
+        yaxis_title='單價 (€/m²)',
+        showlegend=True,
+        height=500,
+        yaxis=dict(
+            gridcolor='lightgrey',
+            zeroline=False
+        ),
+        plot_bgcolor='white'
+    )
+
+    # 顯示箱型圖
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 顯示統計摘要
+    st.write('單價統計摘要：')
+    summary_stats = pd.Series(filtered_prices).describe()
+    summary_df = pd.DataFrame({
+        '統計量': ['數量', '平均值', '標準差', '最小值', '25%分位數', '中位數', '75%分位數', '最大值'],
+        '數值': [
+            f"{summary_stats['count']:.0f}",
+            f"€{summary_stats['mean']:,.2f}",
+            f"€{summary_stats['std']:,.2f}",
+            f"€{summary_stats['min']:,.2f}",
+            f"€{summary_stats['25%']:,.2f}",
+            f"€{summary_stats['50%']:,.2f}",
+            f"€{summary_stats['75%']:,.2f}",
+            f"€{summary_stats['max']:,.2f}"
+        ]
+    })
+    st.dataframe(summary_df, hide_index=True)
+else:
+    st.warning('沒有符合篩選條件的比較標的，無法生成箱型圖')
 
 # 再進行IDW計算
 st.subheader('IDW空間插值計算')
